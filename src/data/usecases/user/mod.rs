@@ -22,3 +22,5 @@ impl UserUseCase for UseCase {
         return self.repository.create(dto.to_user());
     }
 }
+
+mod tests;

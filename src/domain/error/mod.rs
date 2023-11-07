@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub struct Error {
     kind: Kind,
     code: u8,
@@ -23,5 +24,9 @@ impl Error {
 
     pub fn get_kind(&self) -> Kind {
         self.kind.clone()
+    }
+
+    pub fn new_internal(message: String) -> Error {
+        Error { kind: Kind::Internal, code: 0, message }
     }
 }
