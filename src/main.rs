@@ -1,7 +1,7 @@
 use axum::{
     Router,
     routing::{get, post},
-    Json,
+    Json, http::StatusCode,
 };
 
 use fiadors::{
@@ -16,7 +16,7 @@ use fiadors::{
 async fn main() {
     let mut app = Router::new();
 
-    app = app.route("/", get(|| async {"Hello World"}))
+    app = app.route("/health-check", get(|| async {StatusCode::OK}))
     .route("/users", post(create_user));
 
 
