@@ -10,7 +10,7 @@ pub trait UserUseCase {
     fn create(&self, dto: UserRequestDTO) -> Result<(), Error>;
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct UserRequestDTO {
     pub name: String,
     pub document: String,

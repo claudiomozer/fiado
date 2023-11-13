@@ -2,7 +2,7 @@ use uuid::Uuid;
 use chrono::{NaiveDate, DateTime, Utc};
 use serde::Serialize;
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, PartialEq, Clone, Copy)]
 pub enum UserStatus {
     Active,
     Blocked,
@@ -10,7 +10,7 @@ pub enum UserStatus {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct User {
     id: Uuid,
     name: String,
@@ -32,5 +32,31 @@ impl User {
             created_at: Utc::now(),
             updated_at: Utc::now()
         }
+    }
+
+    pub fn get_name(&self) -> &String {
+        &self.name
+    }
+
+    pub fn get_document(&self) -> &String {
+        &self.document
+    }
+
+    pub fn get_birth_date(&self) -> NaiveDate {
+        self.birth_date
+    }
+
+    pub fn get_status(&self) -> UserStatus {
+        self.status
+    }
+}
+
+impl PartialEq for User {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id &&
+        self.document == other.document &&
+        self.birth_date == other.birth_date &&
+        self.name == other.name &&
+        self.status == other.status
     }
 }
