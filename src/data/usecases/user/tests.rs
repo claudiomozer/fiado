@@ -1,5 +1,3 @@
-use mockall::predicate::eq;
-
 #[cfg(test)]
 #[test]
 fn it_should_return_an_error_when_repo_fails() {
@@ -66,6 +64,7 @@ fn it_should_return_error_if_password_hash_fails() {
     use crate::data::usecases::user::{UseCase, UserRequestDTO};
     use crate::domain::{usecases::user::UserUseCase, error::Kind};
     use super::protocols::{repository::MockRepository, uuid::MockUuid, hash::MockHash};
+    use mockall::predicate::eq;
 
     let dto = UserRequestDTO {
         name: String::from("Claudion du fret"),
