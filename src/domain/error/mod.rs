@@ -5,7 +5,7 @@ pub struct Error {
     message: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone,PartialEq)]
 pub enum Kind {
     Business,
     NotFound,

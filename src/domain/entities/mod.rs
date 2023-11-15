@@ -14,6 +14,7 @@ pub struct User {
     name: String,
     document: String,
     status: UserStatus,
+    password: String,
     birth_date: NaiveDate,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>
@@ -27,6 +28,7 @@ impl User {
             document,
             birth_date,
             status: UserStatus::Active,
+            password: String::new(),
             created_at: Utc::now(),
             updated_at: Utc::now()
         }
@@ -34,6 +36,10 @@ impl User {
 
     pub fn set_uuid(&mut self, uuid: String) {
         self.id = uuid;
+    }
+
+    pub fn set_password(&mut self, password: String) {
+        self.password = password;
     }
 
     pub fn get_name(&self) -> &String {

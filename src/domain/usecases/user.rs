@@ -15,6 +15,7 @@ pub struct UserRequestDTO {
     pub name: String,
     pub document: String,
     pub birth_date: NaiveDate,
+    pub password: String,
 }
 
 impl UserRequestDTO {
