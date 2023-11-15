@@ -1,4 +1,3 @@
-use uuid::Uuid;
 use chrono::{NaiveDate, DateTime, Utc};
 use serde::Serialize;
 
@@ -9,10 +8,9 @@ pub enum UserStatus {
     Deleted
 }
 
-
 #[derive(Serialize, Debug)]
 pub struct User {
-    id: Uuid,
+    id: String,
     name: String,
     document: String,
     status: UserStatus,
@@ -24,7 +22,7 @@ pub struct User {
 impl User {
     pub fn new(name: String, document: String, birth_date: NaiveDate) -> User {
         User {
-            id: uuid::Builder::nil().into_uuid(),
+            id: String::new(), 
             name,
             document,
             birth_date,
@@ -32,6 +30,10 @@ impl User {
             created_at: Utc::now(),
             updated_at: Utc::now()
         }
+    }
+
+    pub fn set_uuid(&mut self, uuid: String) {
+        self.id = uuid;
     }
 
     pub fn get_name(&self) -> &String {

@@ -5,21 +5,28 @@ use crate::domain::{
     usecases::user::UserUseCase,
     usecases::user::UserRequestDTO
 };
-use protocols::repository::Repository;
+use protocols::{
+    repository::Repository,
+    uuid::Uuid
+};
 
 pub struct UseCase {
-    repository: Box<dyn Repository>
+    repository: Box<dyn Repository>,
+    uuid_generator: Box<dyn Uuid> 
 }
 
 impl UseCase {
-    pub fn new(repository: Box<dyn Repository>) -> UseCase {
-        UseCase { repository }
+    pub fn new(repository: Box<dyn Repository>, uuid_generator: Box<dyn Uuid>) -> UseCase {
+        UseCase { repository, uuid_generator }
     }
 }
 
 impl UserUseCase for UseCase {
     fn create(&self, dto: UserRequestDTO) -> Result<(), Error>{
-        return self.repository.create(dto.to_user());
+        let mut user = dto.to_user();
+        user.set_uuid(self.uuid_generator.generate());
+
+        return self.repository.create(user);
     }
 }
 
