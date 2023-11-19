@@ -1,5 +1,3 @@
-use crate::domain::{error::Kind, usecases::user::INVALID_DOCUMENT_ERROR};
-
 #[cfg(test)]
 #[test]
 fn it_should_return_an_error_when_repo_fails() {
@@ -98,6 +96,7 @@ fn it_should_return_error_when_invalid_document_string_is_given() {
     use chrono::NaiveDate;
     use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
     use super::protocols::{repository::MockRepository, uuid::MockUuid, hash::MockHash};
+    use crate::domain::{error::Kind, usecases::user::INVALID_DOCUMENT_ERROR};
 
     let dto = UserRequestDTO{
         name: String::from("Claudion du fret"),
@@ -136,6 +135,8 @@ fn it_should_return_error_when_invalid_cpf_is_given() {
     use chrono::NaiveDate;
     use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
     use super::protocols::{repository::MockRepository, uuid::MockUuid, hash::MockHash};
+    use crate::domain::{error::Kind, usecases::user::INVALID_DOCUMENT_ERROR};
+
 
     let dto = UserRequestDTO{
         name: String::from("Claudion du fret"),
