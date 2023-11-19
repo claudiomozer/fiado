@@ -68,7 +68,7 @@ fn it_should_return_error_if_password_hash_fails() {
 
     let dto = UserRequestDTO {
         name: String::from("Claudion du fret"),
-        document: String::from("11133322292"),
+        document: String::from("52976776024"),
         birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
         password: String::from("password")
     };
