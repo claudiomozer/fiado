@@ -31,7 +31,11 @@ impl UserUseCase for UseCase {
         };
 
         if !user.get_document().is_valid() {
-            return Err(Error::new_business(user::INVALID_DOCUMENT_ERROR))
+            return Err(Error::new_business(user::INVALID_DOCUMENT_ERROR));
+        }
+
+        if user.get_birth_date().is_under_age() {
+            return Err(Error::new_business(user::UNDERAGE_ERROR));
         }
 
         user.set_uuid(self.uuid_generator.generate());

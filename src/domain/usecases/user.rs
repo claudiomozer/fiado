@@ -3,10 +3,11 @@ use serde::Deserialize;
 
 use crate::domain::{
     entities::User,
-    error::Error, types::cpf::CPF
+    error::Error, types::{cpf::CPF, birth_date::BirthDate}
 };
 
 pub const INVALID_DOCUMENT_ERROR: u8 = 1;
+pub const UNDERAGE_ERROR: u8 = 2;
 
 pub trait UserUseCase {
     fn create(&self, dto: UserRequestDTO) -> Result<(), Error>;
@@ -23,8 +24,8 @@ pub struct UserRequestDTO {
 impl UserRequestDTO {
     pub fn to_user(self) -> Result<User, Error>{
         if let Ok(document) = CPF::from_string(self.document) {
-            return Ok(User::new(self.name, document, self.birth_date));
+            return Ok(User::new(self.name, document, BirthDate::from_naive(self.birth_date)));
         }
         return Err(Error::new_business(INVALID_DOCUMENT_ERROR));
     }
-} 
+}
