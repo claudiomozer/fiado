@@ -1,9 +1,7 @@
 use serde::Serialize;
 
 #[derive(Serialize, Debug, PartialEq, Clone, Copy)]
-pub struct CPF {
-    value: [u32; 11]
-}
+pub struct CPF ([u32; 11]);
 
 impl CPF {
 
@@ -12,9 +10,9 @@ impl CPF {
     }
 
     fn numbers_are_not_repeated(&self) -> bool {
-        let number = self.value[0];
+        let number = self.0[0];
         for i in 0..11 {
-            if self.value[i] != number {
+            if self.0[i] != number {
                 return true;
             }
         } 
@@ -24,7 +22,7 @@ impl CPF {
     fn are_verifier_digits_valid(&self) -> bool {
         let mut first_digit_sum: u32 = 0;
         for i in 0..9 {
-            first_digit_sum += self.value[i] * (10 - (i as u32));
+            first_digit_sum += self.0[i] * (10 - (i as u32));
         }
         let mut first_digit_mod = (first_digit_sum * 10) % 11;
         if first_digit_mod >= 10 {
@@ -33,14 +31,14 @@ impl CPF {
 
         let mut second_digit_sum: u32 = 0;
         for i in 0..10 {
-            second_digit_sum += self.value[i] * (11 - (i as u32));
+            second_digit_sum += self.0[i] * (11 - (i as u32));
         }
         let mut second_digit_mod = (second_digit_sum * 10) % 11;
         if second_digit_mod >= 10 {
             second_digit_mod = 0;
         }
 
-        if first_digit_mod == self.value[9] && second_digit_mod == self.value[10] {
+        if first_digit_mod == self.0[9] && second_digit_mod == self.0[10] {
             return true;   
         }
         false
@@ -67,9 +65,7 @@ impl CPF {
             return Err(());
         }
 
-        Ok(CPF{
-            value: document_numbers,
-        })
+        Ok(CPF(document_numbers))
     }
 }
 
