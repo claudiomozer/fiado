@@ -1,5 +1,6 @@
 use chrono::{NaiveDate, DateTime, Utc};
 use serde::Serialize;
+use super::types::cpf::CPF;
 
 #[derive(Serialize, Debug, PartialEq, Clone, Copy)]
 pub enum UserStatus {
@@ -12,7 +13,7 @@ pub enum UserStatus {
 pub struct User {
     id: String,
     name: String,
-    document: String,
+    document: CPF,
     status: UserStatus,
     password: String,
     birth_date: NaiveDate,
@@ -21,7 +22,7 @@ pub struct User {
 }
 
 impl User {
-    pub fn new(name: String, document: String, birth_date: NaiveDate) -> User {
+    pub fn new(name: String, document: CPF, birth_date: NaiveDate) -> User {
         User {
             id: String::new(), 
             name,
@@ -46,7 +47,7 @@ impl User {
         &self.name
     }
 
-    pub fn get_document(&self) -> &String {
+    pub fn get_document(&self) -> &CPF {
         &self.document
     }
 

@@ -1,3 +1,5 @@
+use crate::domain::{error::Kind, usecases::user::INVALID_DOCUMENT_ERROR};
+
 #[cfg(test)]
 #[test]
 fn it_should_return_an_error_when_repo_fails() {
@@ -92,15 +94,14 @@ fn it_should_return_error_if_password_hash_fails() {
 }
 
 #[test]
-fn it_should_not_return_error_on_success() {
+fn it_should_return_error_when_invalid_document_string_is_given() {
     use chrono::NaiveDate;
-    use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::usecases::user::UserUseCase};
+    use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
     use super::protocols::{repository::MockRepository, uuid::MockUuid, hash::MockHash};
-    use mockall::predicate::eq;
 
     let dto = UserRequestDTO{
         name: String::from("Claudion du fret"),
-        document: String::from("11133322292"),
+        document: String::from("invalid123"),
         birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
         password: String::from("password"),
     };
@@ -112,7 +113,84 @@ fn it_should_not_return_error_on_success() {
     uuid_mock.expect_generate().return_const("uuid");
 
     let mut repository_mock = MockRepository::new();
-    let mut user = dto.clone().to_user();
+    repository_mock.expect_create().return_const(Ok(()));
+
+    let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
+    let result = sut.create(dto);
+
+    let mut error: Error = Error::new();
+    assert!(match result {
+        Ok(()) => false,
+        Err(e) => {
+            error = e;
+            true
+        }
+    });
+
+    assert_eq!(error.get_kind(), Kind::Business);
+    assert_eq!(error.get_code(), INVALID_DOCUMENT_ERROR);
+}
+
+#[test]
+fn it_should_return_error_when_invalid_cpf_is_given() {
+    use chrono::NaiveDate;
+    use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
+    use super::protocols::{repository::MockRepository, uuid::MockUuid, hash::MockHash};
+
+    let dto = UserRequestDTO{
+        name: String::from("Claudion du fret"),
+        document: String::from("40735626066"),
+        birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
+        password: String::from("password"),
+    };
+
+    let mut hash_mock = MockHash::new();
+    hash_mock.expect_run().return_const(Ok(String::from("hash_password")));
+
+    let mut uuid_mock = MockUuid::new();
+    uuid_mock.expect_generate().return_const("uuid");
+
+    let mut repository_mock = MockRepository::new();
+    repository_mock.expect_create().return_const(Ok(()));
+
+    let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
+    let result = sut.create(dto);
+
+    let mut error: Error = Error::new();
+    assert!(match result {
+        Ok(()) => false,
+        Err(e) => {
+            error = e;
+            true
+        }
+    });
+
+    assert_eq!(error.get_kind(), Kind::Business);
+    assert_eq!(error.get_code(), INVALID_DOCUMENT_ERROR);
+}
+
+#[test]
+fn it_should_not_return_error_on_success() {
+    use chrono::NaiveDate;
+    use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::usecases::user::UserUseCase};
+    use super::protocols::{repository::MockRepository, uuid::MockUuid, hash::MockHash};
+    use mockall::predicate::eq;
+
+    let dto = UserRequestDTO{
+        name: String::from("Claudion du fret"),
+        document: String::from("40735626065"),
+        birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
+        password: String::from("password"),
+    };
+
+    let mut hash_mock = MockHash::new();
+    hash_mock.expect_run().return_const(Ok(String::from("hash_password")));
+
+    let mut uuid_mock = MockUuid::new();
+    uuid_mock.expect_generate().return_const("uuid");
+
+    let mut repository_mock = MockRepository::new();
+    let mut user = dto.clone().to_user().unwrap();
     user.set_uuid(String::from("uuid"));
     user.set_password(String::from("hash_password"));
 

@@ -27,5 +27,5 @@ async fn main() {
 }
 
 async fn create_user(Json(payload): Json<UserRequestDTO>)-> Result<Json<User>, AppError> {
-    Ok(Json(payload.to_user()))
+    Ok(Json(payload.to_user().unwrap()))
 }

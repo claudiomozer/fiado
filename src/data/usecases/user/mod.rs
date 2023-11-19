@@ -2,8 +2,7 @@ mod protocols;
 
 use crate::domain::{
     error::Error,
-    usecases::user::UserUseCase,
-    usecases::user::UserRequestDTO
+    usecases::user::{self, UserUseCase, UserRequestDTO}
 };
 use protocols::{
     repository::Repository,
@@ -26,9 +25,16 @@ impl UseCase {
 impl UserUseCase for UseCase {
     fn create(&self, dto: UserRequestDTO) -> Result<(), Error>{
         let password = dto.password.clone();
-        let mut user = dto.to_user();
+        let mut user = match dto.to_user() {
+            Ok(u) => u,
+            Err(e) => return Err(e)
+        };
+
+        if !user.get_document().is_valid() {
+            return Err(Error::new_business(user::INVALID_DOCUMENT_ERROR))
+        }
+
         user.set_uuid(self.uuid_generator.generate());
-        
         match self.hash.run(password) {
             Ok(hashed_password) => user.set_password(hashed_password),
             Err(message) => return Err(Error::new_internal(message))
