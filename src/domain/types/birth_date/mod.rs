@@ -16,6 +16,10 @@ impl BirthDate {
         }      
         false
     }
+
+    pub fn to_naive_date(&self) -> NaiveDate {
+        self.0
+    }
 }
 
 mod tests;

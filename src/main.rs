@@ -9,7 +9,7 @@ use fiadors::{
         usecases::user::UserRequestDTO,
         entities::User,
     },
-    app::error::AppError
+    app::http::error::AppError
 };
 
 #[tokio::main]

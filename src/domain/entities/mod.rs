@@ -43,8 +43,12 @@ impl User {
         self.password = password;
     }
 
-    pub fn get_name(&self) -> &String {
-        &self.name
+    pub fn get_id(&self) -> &str {
+        self.name.as_str()
+    }
+
+    pub fn get_name(&self) -> &str {
+        self.name.as_str()
     }
 
     pub fn get_document(&self) -> &CPF {
@@ -58,6 +62,18 @@ impl User {
     pub fn get_status(&self) -> UserStatus {
         self.status
     }
+
+    pub fn get_password(&self) -> &str {
+        self.password.as_str()
+    }
+
+    pub fn get_created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
+
+    pub fn get_updated_at(&self) -> DateTime<Utc> {
+        self.updated_at
+    }
 }
 
 impl PartialEq for User {
@@ -67,5 +83,16 @@ impl PartialEq for User {
         self.birth_date == other.birth_date &&
         self.name == other.name &&
         self.status == other.status
+    }
+}
+
+
+impl UserStatus {
+    pub fn to_sring(&self) -> &'static str {
+        match self {
+            Self::Active => "ACTIVE",
+            Self::Blocked => "BLOCKED",
+            Self::Deleted => "DELETED",
+        }
     }
 }

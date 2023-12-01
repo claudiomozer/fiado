@@ -1,4 +1,4 @@
-mod protocols;
+pub mod protocols;
 
 use crate::domain::{
     error::Error,
@@ -6,9 +6,9 @@ use crate::domain::{
 };
 use protocols::{
     repository::Repository,
-    uuid::Uuid,
     hash::Hash,
 };
+use crate::data::protocols::uuid::Uuid;
 
 pub struct UseCase {
     repository: Box<dyn Repository>,
@@ -41,7 +41,7 @@ impl UserUseCase for UseCase {
         user.set_uuid(self.uuid_generator.generate());
         match self.hash.run(password) {
             Ok(hashed_password) => user.set_password(hashed_password),
-            Err(message) => return Err(Error::new_internal(message))
+            Err(message) => return Err(Error::new_internal(&message))
         }
 
         return self.repository.create(user);

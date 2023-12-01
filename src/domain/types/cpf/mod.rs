@@ -67,6 +67,10 @@ impl CPF {
 
         Ok(CPF(document_numbers))
     }
+
+    pub fn to_string(&self) ->  String {
+        self.0.map(|digit| digit.to_string()).concat()
+    }
 }
 
 

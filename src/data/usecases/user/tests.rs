@@ -3,10 +3,11 @@
 fn it_should_return_an_error_when_repo_fails() {
     use chrono::NaiveDate;
     use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::usecases::user::UserUseCase};
-    use super::protocols::{repository::MockRepository, uuid::MockUuid, hash::MockHash};
+    use super::protocols::{repository::MockRepository, hash::MockHash};
     use crate::domain::error::Error;
+    use crate::data::protocols::uuid::MockUuid;
 
-    let expected_error =  Error::new_internal(String::from("internal"));
+    let expected_error =  Error::new_internal("internal");
 
     let mut uuid_mock = MockUuid::new();
     uuid_mock.expect_generate().return_const("uuid");
@@ -36,7 +37,8 @@ fn it_should_return_an_error_when_repo_fails() {
 fn it_should_call_uuid_generator() {
     use chrono::NaiveDate;
     use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::usecases::user::UserUseCase};
-    use super::protocols::{repository::MockRepository, uuid::MockUuid, hash::MockHash};
+    use super::protocols::{repository::MockRepository, hash::MockHash};
+    use crate::data::protocols::uuid::MockUuid;
 
     let dto = UserRequestDTO{
         name: String::from("Claudion du fret"),
@@ -63,7 +65,8 @@ fn it_should_return_error_if_password_hash_fails() {
     use chrono::NaiveDate;
     use crate::data::usecases::user::{UseCase, UserRequestDTO};
     use crate::domain::{usecases::user::UserUseCase, error::Kind};
-    use super::protocols::{repository::MockRepository, uuid::MockUuid, hash::MockHash};
+    use super::protocols::{repository::MockRepository, hash::MockHash};
+    use crate::data::protocols::uuid::MockUuid;
     use mockall::predicate::eq;
 
     let dto = UserRequestDTO {
@@ -95,8 +98,9 @@ fn it_should_return_error_if_password_hash_fails() {
 fn it_should_return_error_when_invalid_document_string_is_given() {
     use chrono::NaiveDate;
     use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
-    use super::protocols::{repository::MockRepository, uuid::MockUuid, hash::MockHash};
+    use super::protocols::{repository::MockRepository, hash::MockHash};
     use crate::domain::{error::Kind, usecases::user::INVALID_DOCUMENT_ERROR};
+    use crate::data::protocols::uuid::MockUuid;
 
     let dto = UserRequestDTO{
         name: String::from("Claudion du fret"),
@@ -134,9 +138,9 @@ fn it_should_return_error_when_invalid_document_string_is_given() {
 fn it_should_return_error_when_invalid_cpf_is_given() {
     use chrono::NaiveDate;
     use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
-    use super::protocols::{repository::MockRepository, uuid::MockUuid, hash::MockHash};
+    use super::protocols::{repository::MockRepository, hash::MockHash};
     use crate::domain::{error::Kind, usecases::user::INVALID_DOCUMENT_ERROR};
-
+    use crate::data::protocols::uuid::MockUuid;
 
     let dto = UserRequestDTO{
         name: String::from("Claudion du fret"),
@@ -174,9 +178,9 @@ fn it_should_return_error_when_invalid_cpf_is_given() {
 fn it_should_return_error_when_user_is_underage_given() {
     use chrono::NaiveDate;
     use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
-    use super::protocols::{repository::MockRepository, uuid::MockUuid, hash::MockHash};
+    use super::protocols::{repository::MockRepository, hash::MockHash};
     use crate::domain::{error::Kind, usecases::user::UNDERAGE_ERROR};
-
+    use crate::data::protocols::uuid::MockUuid;
 
     let dto = UserRequestDTO{
         name: String::from("Claudion du fret"),
@@ -215,8 +219,9 @@ fn it_should_return_error_when_user_is_underage_given() {
 fn it_should_not_return_error_on_success() {
     use chrono::NaiveDate;
     use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::usecases::user::UserUseCase};
-    use super::protocols::{repository::MockRepository, uuid::MockUuid, hash::MockHash};
+    use super::protocols::{repository::MockRepository, hash::MockHash};
     use mockall::predicate::eq;
+    use crate::data::protocols::uuid::MockUuid;
 
     let dto = UserRequestDTO{
         name: String::from("Claudion du fret"),

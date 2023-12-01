@@ -30,11 +30,15 @@ impl Error {
         Error { kind: Kind::Internal, code: 0, message: String::from("unexpected error") }
     }
 
-    pub fn new_internal(message: String) -> Error {
-        Error { kind: Kind::Internal, code: 0, message }
+    pub fn new_internal(message: &str) -> Error {
+        Error { kind: Kind::Internal, code: 0, message: String::from(message) }
     }
 
     pub fn new_business(code: u8) -> Error {
         Error { kind: Kind::Business, code: code, message: String::from("invalid request") }
+    }
+
+    pub fn new_already_exists(code: u8, entity: &str) -> Error {
+        Error { kind: Kind::Business, code: code, message: format!("{} already exists", entity) }
     }
 }

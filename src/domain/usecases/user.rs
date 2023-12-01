@@ -8,6 +8,7 @@ use crate::domain::{
 
 pub const INVALID_DOCUMENT_ERROR: u8 = 1;
 pub const UNDERAGE_ERROR: u8 = 2;
+pub const USER_ALREADY_EXISTS: u8 = 3;
 
 pub trait UserUseCase {
     fn create(&self, dto: UserRequestDTO) -> Result<(), Error>;
