@@ -10,7 +10,6 @@ use crate::{
 };
 
 pub struct UserState {
-    user_use_case: Box<dyn UserUseCase>
 }
 
 pub async fn create_user(State(state): State<Arc<UserState>>, Json(payload): Json<UserRequestDTO>)-> Result<Json<User>, AppError> {

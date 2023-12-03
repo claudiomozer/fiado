@@ -1,4 +1,4 @@
-use bcrypt::bcrypt;
+use bcrypt;
 use rand::{Rng, distributions::Alphanumeric};
 use crate::data::usecases::user::protocols::hash::Hash;
 
@@ -26,7 +26,7 @@ impl Hash for Hasher {
 
 
 impl Hasher {
-    fn new(pepper: String, cost: u32) -> Hasher{
+    pub fn new(pepper: String, cost: u32) -> Hasher{
         if pepper.len() < 8 {
             panic!("Pepper must have at least 8 characters")
         }
