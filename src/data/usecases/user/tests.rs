@@ -1,6 +1,6 @@
 #[cfg(test)]
-#[test]
-fn it_should_return_an_error_when_repo_fails() {
+#[tokio::test]
+async fn it_should_return_an_error_when_repo_fails() {
     use chrono::NaiveDate;
     use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::usecases::user::UserUseCase};
     use super::protocols::{repository::MockRepository, hash::MockHash};
@@ -25,7 +25,7 @@ fn it_should_return_an_error_when_repo_fails() {
         birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
         password: String::from("password")
     };
-    let result = sut.create(dto);
+    let result = sut.create(dto).await;
 
     assert!(match result {
         Ok(()) => false,
@@ -33,8 +33,8 @@ fn it_should_return_an_error_when_repo_fails() {
     })
 }
 
-#[test]
-fn it_should_call_uuid_generator() {
+#[tokio::test]
+async fn it_should_call_uuid_generator() {
     use chrono::NaiveDate;
     use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::usecases::user::UserUseCase};
     use super::protocols::{repository::MockRepository, hash::MockHash};
@@ -60,8 +60,8 @@ fn it_should_call_uuid_generator() {
     _ = sut.create(dto);
 }
 
-#[test]
-fn it_should_return_error_if_password_hash_fails() {
+#[tokio::test]
+async fn it_should_return_error_if_password_hash_fails() {
     use chrono::NaiveDate;
     use crate::data::usecases::user::{UseCase, UserRequestDTO};
     use crate::domain::{usecases::user::UserUseCase, error::Kind};
@@ -86,7 +86,7 @@ fn it_should_return_error_if_password_hash_fails() {
     uuid_mock.expect_generate().return_const("uuid");
 
     let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
-    let result = sut.create(dto);
+    let result = sut.create(dto).await;
 
     assert!(match result {
         Ok(())=> false,
@@ -94,8 +94,8 @@ fn it_should_return_error_if_password_hash_fails() {
     })
 }
 
-#[test]
-fn it_should_return_error_when_invalid_document_string_is_given() {
+#[tokio::test]
+async fn it_should_return_error_when_invalid_document_string_is_given() {
     use chrono::NaiveDate;
     use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
     use super::protocols::{repository::MockRepository, hash::MockHash};
@@ -119,7 +119,7 @@ fn it_should_return_error_when_invalid_document_string_is_given() {
     repository_mock.expect_create().return_const(Ok(()));
 
     let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
-    let result = sut.create(dto);
+    let result = sut.create(dto).await;
 
     let mut error: Error = Error::new();
     assert!(match result {
@@ -134,8 +134,8 @@ fn it_should_return_error_when_invalid_document_string_is_given() {
     assert_eq!(error.get_code(), INVALID_DOCUMENT_ERROR);
 }
 
-#[test]
-fn it_should_return_error_when_invalid_cpf_is_given() {
+#[tokio::test]
+async fn it_should_return_error_when_invalid_cpf_is_given() {
     use chrono::NaiveDate;
     use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
     use super::protocols::{repository::MockRepository, hash::MockHash};
@@ -159,7 +159,7 @@ fn it_should_return_error_when_invalid_cpf_is_given() {
     repository_mock.expect_create().return_const(Ok(()));
 
     let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
-    let result = sut.create(dto);
+    let result = sut.create(dto).await;
 
     let mut error: Error = Error::new();
     assert!(match result {
@@ -174,8 +174,8 @@ fn it_should_return_error_when_invalid_cpf_is_given() {
     assert_eq!(error.get_code(), INVALID_DOCUMENT_ERROR);
 }
 
-#[test]
-fn it_should_return_error_when_user_is_underage_given() {
+#[tokio::test]
+async fn it_should_return_error_when_user_is_underage_given() {
     use chrono::NaiveDate;
     use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
     use super::protocols::{repository::MockRepository, hash::MockHash};
@@ -199,7 +199,7 @@ fn it_should_return_error_when_user_is_underage_given() {
     repository_mock.expect_create().return_const(Ok(()));
 
     let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
-    let result = sut.create(dto);
+    let result = sut.create(dto).await;
 
     let mut error: Error = Error::new();
     assert!(match result {
@@ -215,8 +215,8 @@ fn it_should_return_error_when_user_is_underage_given() {
 }
 
 
-#[test]
-fn it_should_not_return_error_on_success() {
+#[tokio::test]
+async fn it_should_not_return_error_on_success() {
     use chrono::NaiveDate;
     use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::usecases::user::UserUseCase};
     use super::protocols::{repository::MockRepository, hash::MockHash};
@@ -244,7 +244,7 @@ fn it_should_not_return_error_on_success() {
     repository_mock.expect_create().with(eq(user)).return_const(Ok(()));
 
     let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
-    let result = sut.create(dto);
+    let result = sut.create(dto).await;
 
     assert!(match result {
         Ok(()) => true,

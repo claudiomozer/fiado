@@ -13,7 +13,7 @@ pub const USER_ALREADY_EXISTS: u8 = 3;
 
 #[async_trait]
 pub trait UserUseCase {
-    fn create(&self, dto: UserRequestDTO) -> Result<(), Error>;
+    async fn create(&self, dto: UserRequestDTO) -> Result<(), Error>;
 }
     
 #[derive(Deserialize, Clone)]

@@ -12,19 +12,20 @@ use protocols::{
 use crate::data::protocols::uuid::Uuid;
 
 pub struct UseCase {
-    repository: Box<dyn Repository + Send>,
-    uuid_generator: Box<dyn Uuid>,
-    hash: Box<dyn Hash>
+    repository: Box<dyn Repository + Send + Sync>,
+    uuid_generator: Box<dyn Uuid + Send + Sync>,
+    hash: Box<dyn Hash + Send + Sync>
 }
 
 impl UseCase {
-    pub fn new(repository: Box<dyn Repository + Send>, uuid_generator: Box<dyn Uuid>, hash: Box<dyn Hash>) -> UseCase {
+    pub fn new(repository: Box<dyn Repository + Send + Sync>, uuid_generator: Box<dyn Uuid + Sync + Send>, hash: Box<dyn Hash + Sync + Send>) -> UseCase {
         UseCase { repository, uuid_generator, hash}
     }
 }
 
+#[async_trait]
 impl UserUseCase for UseCase {
-    fn create(&self, dto: UserRequestDTO) -> Result<(), Error>{
+    async fn create(&self, dto: UserRequestDTO) -> Result<(), Error>{
         let password = dto.password.clone();
         let mut user = match dto.to_user() {
             Ok(u) => u,
@@ -45,7 +46,7 @@ impl UserUseCase for UseCase {
             Err(message) => return Err(Error::new_internal(&message))
         }
 
-        return self.repository.create(user);
+        return self.repository.create(user).await;
     }
 }
 
