@@ -1,5 +1,6 @@
 use chrono::NaiveDate;
 use serde::Deserialize;
+use async_trait::async_trait;
 
 use crate::domain::{
     entities::User,
@@ -10,6 +11,7 @@ pub const INVALID_DOCUMENT_ERROR: u8 = 1;
 pub const UNDERAGE_ERROR: u8 = 2;
 pub const USER_ALREADY_EXISTS: u8 = 3;
 
+#[async_trait]
 pub trait UserUseCase {
     fn create(&self, dto: UserRequestDTO) -> Result<(), Error>;
 }

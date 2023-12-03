@@ -1,5 +1,6 @@
 pub mod protocols;
 
+use async_trait::async_trait;
 use crate::domain::{
     error::Error,
     usecases::user::{self, UserUseCase, UserRequestDTO}
@@ -11,13 +12,13 @@ use protocols::{
 use crate::data::protocols::uuid::Uuid;
 
 pub struct UseCase {
-    repository: Box<dyn Repository>,
+    repository: Box<dyn Repository + Send>,
     uuid_generator: Box<dyn Uuid>,
     hash: Box<dyn Hash>
 }
 
 impl UseCase {
-    pub fn new(repository: Box<dyn Repository>, uuid_generator: Box<dyn Uuid>, hash: Box<dyn Hash>) -> UseCase {
+    pub fn new(repository: Box<dyn Repository + Send>, uuid_generator: Box<dyn Uuid>, hash: Box<dyn Hash>) -> UseCase {
         UseCase { repository, uuid_generator, hash}
     }
 }
