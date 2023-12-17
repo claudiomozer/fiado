@@ -32,7 +32,7 @@ impl Vars {
 
         let db_port: String = match env::var("DB_PORT") {
             Ok(v) => v,
-            Err(e) => String::from("5432")
+            Err(_) => String::from("5432")
         };
 
         Vars {
