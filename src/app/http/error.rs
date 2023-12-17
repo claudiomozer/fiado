@@ -13,6 +13,10 @@ impl AppError {
     fn extract_body(&self) -> Body {
         Body { code: self.0.get_code(), msg: self.0.get_message() }
     }
+
+    pub fn from_domain(err: Error) -> AppError {
+        AppError(err)
+    }
 }
 
 #[derive(Serialize)]
