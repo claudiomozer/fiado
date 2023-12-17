@@ -1,4 +1,5 @@
 use axum::{Json, extract::State};
+use crate::app::container::Container;
 use std::sync::Arc;
 
 use crate::{
@@ -9,10 +10,6 @@ use crate::{
     app::http::error::AppError
 };
 
-pub struct UserState {
-}
-
-pub async fn create_user(State(state): State<Arc<UserState>>, Json(payload): Json<UserRequestDTO>)-> Result<Json<User>, AppError> {
+pub async fn create_user(State(state): State<Arc<Container>>, Json(payload): Json<UserRequestDTO>)-> Result<Json<User>, AppError> {
     Ok(Json(payload.to_user().unwrap()))
 }
-

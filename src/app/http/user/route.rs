@@ -1,6 +1,11 @@
-// pub fn build_routes(router: Router) -> Router {
-//     return router.route("/health-check", get(|| async {StatusCode::OK}))
-//     .route("/users", post(create_user));
-// }
+use axum::{
+    Router,
+    routing::post
+};
+use std::sync::Arc;
+use super::handler::create_user;
+use crate::app::container::Container;
 
-// PREPARAR O CONTAINER PARA CONTER AS DEPENDENCIAS DE INFRA E ASSIM PERMITIR A CONSTRUÇÃO DOS REPOSITORIES E USECASES
+pub fn build_routes() -> Router<Arc<Container>> {
+    return Router::new().route("", post(create_user))
+}
