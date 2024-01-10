@@ -3,7 +3,7 @@ pub mod protocols;
 use async_trait::async_trait;
 use crate::domain::{
     error::Error,
-    usecases::user::{self, UserUseCase, UserRequestDTO}
+    usecases::user::{self, UserUseCase, UserCreateRequestDTO}
 };
 use protocols::{
     repository::Repository,
@@ -25,7 +25,7 @@ impl UseCase {
 
 #[async_trait]
 impl UserUseCase for UseCase {
-    async fn create(&self, dto: UserRequestDTO) -> Result<(), Error>{
+    async fn create(&self, dto: UserCreateRequestDTO) -> Result<(), Error>{
         let password = dto.password.clone();
         let mut user = match dto.to_user() {
             Ok(u) => u,

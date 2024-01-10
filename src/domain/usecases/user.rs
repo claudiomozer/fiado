@@ -13,18 +13,18 @@ pub const USER_ALREADY_EXISTS: u8 = 3;
 
 #[async_trait]
 pub trait UserUseCase {
-    async fn create(&self, dto: UserRequestDTO) -> Result<(), Error>;
+    async fn create(&self, dto: UserCreateRequestDTO) -> Result<(), Error>;
 }
     
 #[derive(Deserialize, Clone)]
-pub struct UserRequestDTO {
+pub struct UserCreateRequestDTO {
     pub name: String,
     pub document: String,
     pub birth_date: NaiveDate,
     pub password: String,
 }
 
-impl UserRequestDTO {
+impl UserCreateRequestDTO {
     pub fn to_user(self) -> Result<User, Error>{
         if let Ok(document) = CPF::from_string(self.document) {
             return Ok(User::new(self.name, document, BirthDate::from_naive(self.birth_date)));

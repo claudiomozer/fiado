@@ -2,7 +2,7 @@
 #[tokio::test]
 async fn it_should_return_an_error_when_repo_fails() {
     use chrono::NaiveDate;
-    use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::usecases::user::UserUseCase};
+    use crate::{data::usecases::user::{UseCase, UserCreateRequestDTO}, domain::usecases::user::UserUseCase};
     use super::protocols::{repository::MockRepository, hash::MockHash};
     use crate::domain::error::Error;
     use crate::data::protocols::uuid::MockUuid;
@@ -19,7 +19,7 @@ async fn it_should_return_an_error_when_repo_fails() {
     repository_mock.expect_create().return_const( Err(expected_error));
     let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
 
-    let dto = UserRequestDTO{
+    let dto = UserCreateRequestDTO{
         name: String::from("Claudion du fret"),
         document: String::from("11133322292"),
         birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
@@ -36,11 +36,11 @@ async fn it_should_return_an_error_when_repo_fails() {
 #[tokio::test]
 async fn it_should_call_uuid_generator() {
     use chrono::NaiveDate;
-    use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::usecases::user::UserUseCase};
+    use crate::{data::usecases::user::{UseCase, UserCreateRequestDTO}, domain::usecases::user::UserUseCase};
     use super::protocols::{repository::MockRepository, hash::MockHash};
     use crate::data::protocols::uuid::MockUuid;
 
-    let dto = UserRequestDTO{
+    let dto = UserCreateRequestDTO{
         name: String::from("Claudion du fret"),
         document: String::from("11133322292"),
         birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
@@ -63,13 +63,13 @@ async fn it_should_call_uuid_generator() {
 #[tokio::test]
 async fn it_should_return_error_if_password_hash_fails() {
     use chrono::NaiveDate;
-    use crate::data::usecases::user::{UseCase, UserRequestDTO};
+    use crate::data::usecases::user::{UseCase, UserCreateRequestDTO};
     use crate::domain::{usecases::user::UserUseCase, error::Kind};
     use super::protocols::{repository::MockRepository, hash::MockHash};
     use crate::data::protocols::uuid::MockUuid;
     use mockall::predicate::eq;
 
-    let dto = UserRequestDTO {
+    let dto = UserCreateRequestDTO {
         name: String::from("Claudion du fret"),
         document: String::from("52976776024"),
         birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
@@ -97,12 +97,12 @@ async fn it_should_return_error_if_password_hash_fails() {
 #[tokio::test]
 async fn it_should_return_error_when_invalid_document_string_is_given() {
     use chrono::NaiveDate;
-    use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
+    use crate::{data::usecases::user::{UseCase, UserCreateRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
     use super::protocols::{repository::MockRepository, hash::MockHash};
     use crate::domain::{error::Kind, usecases::user::INVALID_DOCUMENT_ERROR};
     use crate::data::protocols::uuid::MockUuid;
 
-    let dto = UserRequestDTO{
+    let dto = UserCreateRequestDTO{
         name: String::from("Claudion du fret"),
         document: String::from("invalid123"),
         birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
@@ -137,12 +137,12 @@ async fn it_should_return_error_when_invalid_document_string_is_given() {
 #[tokio::test]
 async fn it_should_return_error_when_invalid_cpf_is_given() {
     use chrono::NaiveDate;
-    use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
+    use crate::{data::usecases::user::{UseCase, UserCreateRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
     use super::protocols::{repository::MockRepository, hash::MockHash};
     use crate::domain::{error::Kind, usecases::user::INVALID_DOCUMENT_ERROR};
     use crate::data::protocols::uuid::MockUuid;
 
-    let dto = UserRequestDTO{
+    let dto = UserCreateRequestDTO{
         name: String::from("Claudion du fret"),
         document: String::from("40735626066"),
         birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
@@ -177,12 +177,12 @@ async fn it_should_return_error_when_invalid_cpf_is_given() {
 #[tokio::test]
 async fn it_should_return_error_when_user_is_underage_given() {
     use chrono::NaiveDate;
-    use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
+    use crate::{data::usecases::user::{UseCase, UserCreateRequestDTO}, domain::{usecases::user::UserUseCase, error::Error}};
     use super::protocols::{repository::MockRepository, hash::MockHash};
     use crate::domain::{error::Kind, usecases::user::UNDERAGE_ERROR};
     use crate::data::protocols::uuid::MockUuid;
 
-    let dto = UserRequestDTO{
+    let dto = UserCreateRequestDTO{
         name: String::from("Claudion du fret"),
         document: String::from("55168718086"),
         birth_date: NaiveDate::parse_from_str("2007-09-05", "%Y-%m-%d").unwrap(),
@@ -218,12 +218,12 @@ async fn it_should_return_error_when_user_is_underage_given() {
 #[tokio::test]
 async fn it_should_not_return_error_on_success() {
     use chrono::NaiveDate;
-    use crate::{data::usecases::user::{UseCase, UserRequestDTO}, domain::usecases::user::UserUseCase};
+    use crate::{data::usecases::user::{UseCase, UserCreateRequestDTO}, domain::usecases::user::UserUseCase};
     use super::protocols::{repository::MockRepository, hash::MockHash};
     use mockall::predicate::eq;
     use crate::data::protocols::uuid::MockUuid;
 
-    let dto = UserRequestDTO{
+    let dto = UserCreateRequestDTO{
         name: String::from("Claudion du fret"),
         document: String::from("40735626065"),
         birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
