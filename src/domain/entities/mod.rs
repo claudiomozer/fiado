@@ -44,7 +44,7 @@ impl User {
     }
 
     pub fn get_id(&self) -> &str {
-        self.name.as_str()
+        self.id.as_str()
     }
 
     pub fn get_name(&self) -> &str {

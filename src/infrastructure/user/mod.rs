@@ -1,4 +1,6 @@
-use sqlx::{Pool, Postgres};
+use std::str::FromStr;
+
+use sqlx::{Pool, Postgres, types::Uuid};
 use async_trait::async_trait;
 use crate::domain::entities::User;
 use crate::data::usecases::user::protocols::repository::Repository;
@@ -28,21 +30,27 @@ impl PostgresRepository {
 #[async_trait]
 impl Repository for PostgresRepository {
     async fn create(&self, user: User) -> Result<(), error::Error> {
+        
+        let user_id = match Uuid::from_str(user.get_id()) {
+            Ok(id) => id,
+            Err(err) => return Err(error::Error::new_internal(err.to_string().as_str()))
+        };
+        
         let result: Result<sqlx::postgres::PgQueryResult, sqlx::Error> = sqlx::query(
             // language=PostgreSQL
             r#"
-                INSERT INTO user (
+                INSERT INTO "user" (
                     id,
                     name,
                     document,
                     status,
-                    password,
+                    "password",
                     birth_date,
                     created_at,
                     updated_at
-                ) VALUE ($1, $2, $3, $3, $4, $5, $6, $7, $8)
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         "#)
-        .bind(user.get_id())
+        .bind(user_id)
         .bind(user.get_name())
         .bind(user.get_document().to_string())
         .bind(user.get_status().to_sring())

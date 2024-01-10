@@ -21,7 +21,7 @@ impl Container {
         let pg_pool: Pool<Postgres> = Pool::<Postgres>::connect(&conn_string).await.unwrap();
 
         let user_repository = Box::new(PostgresRepository::new(pg_pool.clone()));
-        let hash_provider = Box::new(Hasher::new(String::from("12345678"), 15));
+        let hash_provider = Box::new(Hasher::new(String::from("12345678"), 5));
         let uuid_generator = Box::new(Generator::new());
 
         let user_use_case = Box::new(UseCase::new(user_repository, uuid_generator, hash_provider));
