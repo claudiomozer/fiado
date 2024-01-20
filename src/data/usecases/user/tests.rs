@@ -218,7 +218,10 @@ async fn it_should_return_error_when_user_is_underage_given() {
 #[tokio::test]
 async fn it_should_not_return_error_on_success() {
     use chrono::NaiveDate;
-    use crate::{data::usecases::user::{UseCase, UserCreateRequestDTO}, domain::usecases::user::UserUseCase};
+    use crate::{
+        data::usecases::user::{UseCase, UserCreateRequestDTO}, 
+        domain::usecases::user::UserUseCase
+    };
     use super::protocols::{repository::MockRepository, hash::MockHash};
     use mockall::predicate::eq;
     use crate::data::protocols::uuid::MockUuid;
@@ -227,7 +230,7 @@ async fn it_should_not_return_error_on_success() {
         name: String::from("Claudion du fret"),
         document: String::from("40735626065"),
         birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
-        password: String::from("password"),
+        password: String::from("password")
     };
 
     let mut hash_mock = MockHash::new();
@@ -249,5 +252,194 @@ async fn it_should_not_return_error_on_success() {
     assert!(match result {
         Ok(()) => true,
         Err(_) => false
-    })
+    });
+}
+
+#[tokio::test]
+async fn it_should_return_error_if_dto_map_fails() {
+    use crate::domain::{
+        usecases::user::{UserUseCase, UserUpdateRequestDTO, INVALID_DOCUMENT_ERROR},
+        error::{Error, Kind}
+    };
+    use crate::data::usecases::user::UseCase;
+    use super::protocols::{repository::MockRepository, hash::MockHash};
+    use crate::data::protocols::uuid::MockUuid;
+    use uuid::Uuid;
+    use chrono::NaiveDate;
+
+    let dto = UserUpdateRequestDTO{
+        id: Uuid::new_v4().to_string(),
+        name: String::from("Claudion du fret"),
+        document: String::from("invalid"),
+        birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
+    };
+    let hash_mock = MockHash::new();
+    let uuid_mock = MockUuid::new();
+    let repository_mock = MockRepository::new();
+
+    let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
+    let result = sut.update(dto).await;
+
+    let mut err: Error = Error::new();
+    assert!(match result {
+        Ok(()) => false,
+        Err(e) => {
+            err = e;
+            true
+        } 
+    });
+
+    assert_eq!(err.get_kind(), Kind::Business);
+    assert_eq!(err.get_code(), INVALID_DOCUMENT_ERROR);
+}
+
+
+#[tokio::test]
+async fn it_should_return_error_when_invalid_document_is_provided() {
+    use crate::domain::usecases::user::{UserUseCase, UserUpdateRequestDTO};
+    use crate::domain::{
+        usecases::user::INVALID_DOCUMENT_ERROR,
+        error::{Error, Kind}
+    };
+    use crate::data::usecases::user::UseCase;
+    use super::protocols::{repository::MockRepository, hash::MockHash};
+    use crate::data::protocols::uuid::MockUuid;
+    use uuid::Uuid;
+    use chrono::NaiveDate;
+
+    let dto = UserUpdateRequestDTO{
+        id: Uuid::new_v4().to_string(),
+        name: String::from("Claudion du fret"),
+        document: String::from("40735626063"),
+        birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
+    };
+    let hash_mock = MockHash::new();
+    let uuid_mock = MockUuid::new();
+    let repository_mock = MockRepository::new();
+
+    let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
+    let result = sut.update(dto).await;
+
+    let mut err: Error = Error::new();
+    assert!(match result {
+        Ok(()) => false,
+        Err(e) => {
+            err = e;
+            true
+        } 
+    });
+
+    assert_eq!(err.get_kind(), Kind::Business);
+    assert_eq!(err.get_code(), INVALID_DOCUMENT_ERROR);
+}
+
+#[tokio::test]
+async fn it_should_return_error_when_user_is_underage() {
+    use crate::domain::usecases::user::{UserUseCase, UserUpdateRequestDTO};
+    use crate::domain::{
+        usecases::user::UNDERAGE_ERROR,
+        error::{Error, Kind}
+    };
+    use crate::data::usecases::user::UseCase;
+    use super::protocols::{repository::MockRepository, hash::MockHash};
+    use crate::data::protocols::uuid::MockUuid;
+    use uuid::Uuid;
+    use chrono::NaiveDate;
+
+    let dto = UserUpdateRequestDTO{
+        id: Uuid::new_v4().to_string(),
+        name: String::from("Claudion du fret"),
+        document: String::from("40735626065"),
+        birth_date: NaiveDate::parse_from_str("2020-09-05", "%Y-%m-%d").unwrap(),
+    };
+    let hash_mock = MockHash::new();
+    let uuid_mock = MockUuid::new();
+    let repository_mock = MockRepository::new();
+
+    let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
+    let result = sut.update(dto).await;
+
+    let mut err: Error = Error::new();
+    assert!(match result {
+        Ok(()) => false,
+        Err(e) => {
+            err = e;
+            true
+        } 
+    });
+
+    assert_eq!(err.get_kind(), Kind::Business);
+    assert_eq!(err.get_code(), UNDERAGE_ERROR);
+}
+
+#[tokio::test]
+async fn it_should_return_error_when_repository_fails() {
+    use crate::domain::usecases::user::{UserUseCase, UserUpdateRequestDTO};
+    use crate::domain::error::{Error, Kind};
+    use crate::data::usecases::user::UseCase;
+    use super::protocols::{repository::MockRepository, hash::MockHash};
+    use crate::data::protocols::uuid::MockUuid;
+    use mockall::predicate::eq;
+    use uuid::Uuid;
+    use chrono::NaiveDate;
+
+    let expected_err = Error::new_internal("update error");
+    let dto = UserUpdateRequestDTO{
+        id: Uuid::new_v4().to_string(),
+        name: String::from("Claudion du fret"),
+        document: String::from("40735626065"),
+        birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
+    };
+    let hash_mock = MockHash::new();
+    let uuid_mock = MockUuid::new();
+    let mut repository_mock = MockRepository::new();
+    let user = dto.clone().to_user().unwrap();
+
+    repository_mock.expect_update().with(eq(user)).return_const(Err(expected_err));
+
+    let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
+    let result = sut.update(dto).await;
+
+    let mut err: Error = Error::new();
+    assert!(match result {
+        Ok(()) => false,
+        Err(e) => {
+            err = e;
+            true
+        } 
+    });
+
+    assert_eq!(err.get_kind(), Kind::Internal);
+}
+
+
+#[tokio::test]
+async fn it_should_not_return_error_on_update_success() {
+    use crate::domain::usecases::user::{UserUseCase, UserUpdateRequestDTO};
+    use crate::data::usecases::user::UseCase;
+    use super::protocols::{repository::MockRepository, hash::MockHash};
+    use crate::data::protocols::uuid::MockUuid;
+    use mockall::predicate::eq;
+    use uuid::Uuid;
+    use chrono::NaiveDate;
+
+    let dto = UserUpdateRequestDTO{
+        id: Uuid::new_v4().to_string(),
+        name: String::from("Claudion du fret"),
+        document: String::from("40735626065"),
+        birth_date: NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap(),
+    };
+    let hash_mock = MockHash::new();
+    let uuid_mock = MockUuid::new();
+    let mut repository_mock = MockRepository::new();
+    let user = dto.clone().to_user().unwrap();
+
+    repository_mock.expect_update().with(eq(user)).return_const(Ok(()));
+    let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
+    let result = sut.update(dto).await;
+
+    assert!(match result {
+        Ok(()) => true,
+        Err(_) => false, 
+    });
 }

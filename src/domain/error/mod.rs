@@ -38,6 +38,10 @@ impl Error {
         Error { kind: Kind::Business, code: code, message: String::from("invalid request") }
     }
 
+    pub fn new_not_found(code: u8, entity: &str) -> Error {
+        Error { kind: Kind::NotFound, code, message: format!("{} not found", entity)}
+    }
+    
     pub fn new_already_exists(code: u8, entity: &str) -> Error {
         Error { kind: Kind::Business, code: code, message: format!("{} already exists", entity) }
     }

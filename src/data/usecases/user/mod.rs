@@ -3,7 +3,7 @@ pub mod protocols;
 use async_trait::async_trait;
 use crate::domain::{
     error::Error,
-    usecases::user::{self, UserUseCase, UserCreateRequestDTO}
+    usecases::user::{self, UserUseCase, UserCreateRequestDTO, UserUpdateRequestDTO}
 };
 use protocols::{
     repository::Repository,
@@ -47,6 +47,23 @@ impl UserUseCase for UseCase {
         }
 
         return self.repository.create(user).await;
+    }
+
+    async fn update(&self, dto: UserUpdateRequestDTO) -> Result<(), Error> {
+        let user = match dto.to_user() {
+            Ok(u) => u,
+            Err(e) => return Err(e)
+        };
+
+        if !user.get_document().is_valid() {
+            return Err(Error::new_business(user::INVALID_DOCUMENT_ERROR))
+        }
+
+        if user.get_birth_date().is_under_age() {
+            return Err(Error::new_business(user::UNDERAGE_ERROR))
+        }
+
+        return self.repository.update(user).await;
     }
 }
 

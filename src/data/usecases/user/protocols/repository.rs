@@ -9,4 +9,5 @@ use crate::domain::{
 #[async_trait]
 pub trait Repository {
     async fn create(&self, user: User) -> Result<(), Error>;
+    async fn update(&self, user: User) -> Result<(), Error>;
 }
