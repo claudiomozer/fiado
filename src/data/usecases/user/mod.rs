@@ -2,8 +2,9 @@ pub mod protocols;
 
 use async_trait::async_trait;
 use crate::domain::{
-    error::Error,
-    usecases::user::{self, UserUseCase, UserCreateRequestDTO, UserUpdateRequestDTO}
+    error::Error, 
+    types::cpf::CPF,
+    usecases::user::{self, UserUseCase, UserCreateRequestDTO, UserUpdateRequestDTO, PublicUserResponseDTO}
 };
 use protocols::{
     repository::Repository,
@@ -64,6 +65,22 @@ impl UserUseCase for UseCase {
         }
 
         return self.repository.update(user).await;
+    }
+
+    async fn get(&self, document: &str) -> Result<PublicUserResponseDTO, Error> {
+        let cpf = match CPF::from_string(String::from(document)) {
+            Ok(c) => c,
+            Err(_) => return Err(Error::new_business(user::INVALID_DOCUMENT_ERROR))
+        };
+
+        if !cpf.is_valid() {
+            return Err(Error::new_business(user::INVALID_DOCUMENT_ERROR))
+        }
+
+        match self.repository.get_by_cpf(document).await {
+            Ok(u) => Ok(PublicUserResponseDTO::from_user(u)),
+            Err(e) => Err(e)
+        }
     }
 }
 

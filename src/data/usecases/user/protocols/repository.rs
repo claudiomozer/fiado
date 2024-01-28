@@ -10,4 +10,5 @@ use crate::domain::{
 pub trait Repository {
     async fn create(&self, user: User) -> Result<(), Error>;
     async fn update(&self, user: User) -> Result<(), Error>;
+    async fn get_by_cpf(&self, document: &str) -> Result<User, Error>;
 }

@@ -1,10 +1,10 @@
-use chrono::NaiveDate;
-use serde::Deserialize;
+use chrono::{NaiveDate, Utc, DateTime};
+use serde::{Deserialize, Serialize};
 use async_trait::async_trait;
 
 use crate::domain::{
-    entities::User,
-    error::Error, types::{cpf::CPF, birth_date::BirthDate}
+    entities::{User, UserStatus},
+    error::Error, types::{cpf::CPF, birth_date::BirthDate, }
 };
 
 pub const INVALID_DOCUMENT_ERROR: u8 = 1;
@@ -16,6 +16,7 @@ pub const USER_NOT_FOUND: u8 = 4;
 pub trait UserUseCase {
     async fn create(&self, dto: UserCreateRequestDTO) -> Result<(), Error>;
     async fn update(&self, dto: UserUpdateRequestDTO) -> Result<(), Error>;
+    async fn get(&self, document: &str) -> Result<PublicUserResponseDTO, Error>;
 }
     
 #[derive(Deserialize, Clone)]
@@ -50,5 +51,29 @@ impl UserUpdateRequestDTO {
             return Ok(user);
         }
         return Err(Error::new_business(INVALID_DOCUMENT_ERROR));
+    }
+}
+
+#[derive(Serialize)]
+pub struct PublicUserResponseDTO {
+	pub id: String ,
+	pub name: String,
+	pub document: CPF,
+	pub status: UserStatus,
+	pub birth_date: BirthDate,
+	pub created_at: DateTime<Utc>,
+	pub updated_at: DateTime<Utc>
+}
+impl PublicUserResponseDTO {
+    pub fn from_user(user: User) -> Self {
+        return PublicUserResponseDTO { 
+            id: String::from(user.get_id()),
+            name: String::from(user.get_name()),
+            document: *user.get_document(), 
+            status: user.get_status(), 
+            birth_date: user.get_birth_date(), 
+            created_at: user.get_created_at(),
+            updated_at: user.get_updated_at()
+        }
     }
 }

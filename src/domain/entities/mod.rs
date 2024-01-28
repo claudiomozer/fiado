@@ -6,10 +6,11 @@ use super::types::{cpf::CPF, birth_date::BirthDate};
 pub enum UserStatus {
     Active,
     Blocked,
-    Deleted
+    Deleted,
+    Unknown,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct User {
     id: String,
     name: String,
@@ -51,16 +52,32 @@ impl User {
         self.name.as_str()
     }
 
+    pub fn set_name(&mut self, name: String) {
+        self.name = name;
+    }
+
     pub fn get_document(&self) -> &CPF {
         &self.document
+    }
+
+    pub fn set_document(&mut self, document: CPF) {
+        self.document = document;
     }
 
     pub fn get_birth_date(&self) -> BirthDate {
         self.birth_date
     }
 
+    pub fn set_birth_date(&mut self, birth_date: BirthDate) {
+        self.birth_date = birth_date;
+    }
+
     pub fn get_status(&self) -> UserStatus {
         self.status
+    }
+
+    pub fn set_status(&mut self, status: UserStatus) {
+        self.status = status;
     }
 
     pub fn get_password(&self) -> &str {
@@ -71,8 +88,16 @@ impl User {
         self.created_at
     }
 
+    pub fn set_created_at(&mut self, created_at: DateTime<Utc>) {
+        self.created_at = created_at;
+    }
+
     pub fn get_updated_at(&self) -> DateTime<Utc> {
         self.updated_at
+    }
+
+    pub fn set_updated_at(&mut self, updated_at: DateTime<Utc>) {
+        self.updated_at = updated_at;
     }
 }
 
@@ -93,6 +118,16 @@ impl UserStatus {
             Self::Active => "ACTIVE",
             Self::Blocked => "BLOCKED",
             Self::Deleted => "DELETED",
+            Self::Unknown => "UNKNOWN"
+        }
+    }
+
+    pub fn from_string(s: &str) -> UserStatus {
+        match s {
+            "ACTIVE" => UserStatus::Active,
+            "BLOCKED" => UserStatus::Blocked,
+            "DELETED" => UserStatus::Deleted,
+            _ => UserStatus::Unknown,
         }
     }
 }

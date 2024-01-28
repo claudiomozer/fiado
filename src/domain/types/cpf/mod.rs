@@ -1,6 +1,7 @@
-use serde::Serialize;
+use serde::{Serialize, Serializer};
+use std::fmt::Write;
 
-#[derive(Serialize, Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct CPF ([u32; 11]);
 
 impl CPF {
@@ -72,6 +73,20 @@ impl CPF {
         self.0.map(|digit| digit.to_string()).concat()
     }
 }
+
+impl Serialize for CPF {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+    {
+        let mut val: String = String::new();
+        for n in self.0 {
+            let _ = write!(&mut val, "{}", n);
+        }
+        serializer.serialize_str(&val)
+    }
+}
+
 
 
 

@@ -1,9 +1,9 @@
-use axum::{Json, extract::State};
+use axum::{Json, extract::{State, Path}};
 use crate::app::container::Container;
 use std::sync::Arc;
 
 use crate::{
-    domain::usecases::user::{UserCreateRequestDTO, UserUpdateRequestDTO},
+    domain::usecases::user::{UserCreateRequestDTO, UserUpdateRequestDTO, PublicUserResponseDTO},
     app::http::error::AppError
 };
 
@@ -21,3 +21,9 @@ pub async fn update_user(State(state): State<Arc<Container>>, Json(payload): Jso
     }
 }
 
+pub async fn get_user_by_document(State(state): State<Arc<Container>>, Path(document): Path<String>)-> Result<Json<PublicUserResponseDTO>, AppError> {
+    match state.user_use_case.get(document.as_str()).await {
+        Ok(u) => Ok(Json(u)),
+        Err(err) => Err(AppError::from_domain(err))
+    }
+}

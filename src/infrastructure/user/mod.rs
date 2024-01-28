@@ -1,12 +1,16 @@
 use std::str::FromStr;
-
-use sqlx::postgres::PgQueryResult;
-use sqlx::{Pool, Postgres, types::Uuid};
+use chrono::{NaiveDate, NaiveDateTime};
+use sqlx::Row;
+use sqlx::postgres::{PgQueryResult, PgRow};
+use sqlx::{Pool, Postgres};
+use sqlx::types::Uuid;
 use async_trait::async_trait;
-use crate::domain::entities::User;
+use crate::domain::entities::{User, UserStatus};
 use crate::data::usecases::user::protocols::repository::Repository;
-use crate::domain::error;
-use crate::domain::usecases::user::USER_ALREADY_EXISTS;
+use crate::domain::error::{self, Error};
+use crate::domain::types::birth_date::BirthDate;
+use crate::domain::types::cpf::CPF;
+use crate::domain::usecases::user::{USER_ALREADY_EXISTS, USER_NOT_FOUND };
 
 pub struct PostgresRepository{
     pool: Pool<Postgres>
@@ -32,6 +36,29 @@ impl PostgresRepository {
             return Err(error::Error::new_not_found(USER_ALREADY_EXISTS, "user"));
         }
         Ok(()) 
+    }
+
+    fn get_user_from_pg_row(row: PgRow) -> Result<User, sqlx::Error> {
+        let id: Uuid = row.try_get("id")?;
+        let name: String = row.try_get("name")?;
+        let document: &str = row.try_get("document")?;
+        let status: &str = row.try_get("status")?;
+        let birth_date: NaiveDate = row.try_get("birth_date")?;
+        let db_created_at: NaiveDateTime = row.try_get("created_at")?;
+        let db_updated_at: NaiveDateTime  = row.try_get("updated_at")?;
+
+
+        let cpf = match CPF::from_string(String::from(document)) {
+            Ok(c) => c,
+            Err(()) => return Err(sqlx::Error::TypeNotFound { type_name: String::from("CPF") })
+        };
+
+        let mut user = User::new(name, cpf, BirthDate::from_naive(birth_date));
+        user.set_uuid(id.to_string());
+        user.set_status(UserStatus::from_string(status));
+        user.set_created_at(db_created_at.and_utc());
+        user.set_updated_at(db_updated_at.and_utc());
+        return Ok(user);
     }
 
 }
@@ -105,6 +132,35 @@ impl Repository for PostgresRepository {
         match result {
             Err(e) => return Err(Self::handle_postgres_error(e)),
             Ok(r) => return Self::handle_update_result(r)
+        };
+    }
+
+    async fn get_by_cpf(&self, cpf: &str) -> Result<User, error::Error> {
+        let result = sqlx::query(
+            r#"
+                SELECT 
+                    id,
+                    name,
+                    document,
+                    status,
+                    "password",
+                    birth_date,
+                    created_at,
+                    updated_at
+                FROM "user"
+                WHERE document = $1
+            "#
+        ).bind(cpf).fetch_optional(&self.pool).await;
+
+        let row = match result {
+            Err(e) => return Err(Error::new_internal(e.to_string().as_str())),
+            Ok(None) => return Err(Error::new_not_found(USER_NOT_FOUND, "user")),
+            Ok(Some(r)) => r
+        };
+
+        match PostgresRepository::get_user_from_pg_row(row) {
+            Ok(u) => return Ok(u),
+            Err(e) => return Err(Error::new_internal(e.to_string().as_str())),
         };
     }
 }

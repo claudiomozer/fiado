@@ -1,3 +1,4 @@
+
 #[cfg(test)]
 #[tokio::test]
 async fn it_should_return_an_error_when_repo_fails() {
@@ -435,11 +436,93 @@ async fn it_should_not_return_error_on_update_success() {
     let user = dto.clone().to_user().unwrap();
 
     repository_mock.expect_update().with(eq(user)).return_const(Ok(()));
-    let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
+    let sut: UseCase = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
     let result = sut.update(dto).await;
 
     assert!(match result {
         Ok(()) => true,
         Err(_) => false, 
+    });
+}
+
+
+#[tokio::test]
+async fn it_should_return_an_error_if_invalid_document_is_given() {
+    use crate::data::usecases::user::UseCase;
+    use crate::data::protocols::uuid::MockUuid;
+    use crate::data::usecases::user::protocols::{hash::MockHash, repository::MockRepository};
+    use crate::domain::usecases::user;
+    use crate::domain::usecases::user::UserUseCase;
+
+    let hash_mock = MockHash::new();
+    let uuid_mock = MockUuid::new();
+    let repository_mock = MockRepository::new();
+    let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
+
+    let mut result = sut.get("4073563").await;
+    assert!(match result {
+        Ok(_) => false,
+        Err(e) => e.get_code() == user::INVALID_DOCUMENT_ERROR
+    });
+
+    result = sut.get("40735626061").await;
+    assert!(match result {
+        Ok(_) => false,
+        Err(e) => e.get_code() == user::INVALID_DOCUMENT_ERROR
+    });
+}
+
+#[tokio::test]
+async fn it_should_return_an_error_when_repository_get_fails() {
+    use crate::domain::usecases::user::UserUseCase;
+    use crate::data::usecases::user::UseCase;
+    use crate::data::protocols::uuid::MockUuid;
+    use crate::data::usecases::user::protocols::{hash::MockHash, repository::MockRepository};
+    use crate::domain::error::Error;
+    use crate::domain::error::Kind::Internal;
+    use mockall::predicate::eq;
+
+    let cpf: &str = "28104210050";
+    let expected_err = Error::new_internal("update error");
+    let hash_mock = MockHash::new();
+    let uuid_mock = MockUuid::new();
+    let mut repository_mock = MockRepository::new();
+    repository_mock.expect_get_by_cpf().with(eq(cpf)).return_const(Err(expected_err));
+
+    let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
+    let result = sut.get(cpf).await;
+    
+    assert!(match result {
+        Ok(_) => false,
+        Err(e) => e.get_kind() == Internal
+    });
+}
+
+#[tokio::test]
+async fn it_should_return_an_user_on_success() {
+    use crate::domain::usecases::user::UserUseCase;
+    use crate::data::usecases::user::UseCase;
+    use crate::data::protocols::uuid::MockUuid;
+    use crate::data::usecases::user::protocols::{hash::MockHash, repository::MockRepository};
+    use crate::domain::entities::User;
+    use crate::domain::error::Kind::Internal;
+    use crate::domain::types::{cpf::CPF, birth_date::BirthDate};
+    use chrono::NaiveDate;
+
+
+    let cpf = CPF::from_string(String::from("28104210050")).unwrap();
+    let birth_date = NaiveDate::parse_from_str("1999-09-05", "%Y-%m-%d").unwrap();
+    let user = User::new(String::from("name"), cpf, BirthDate::from_naive(birth_date));
+    let hash_mock = MockHash::new();
+    let uuid_mock = MockUuid::new();
+    let mut repository_mock = MockRepository::new();
+    repository_mock.expect_get_by_cpf().return_const(Ok(user));
+
+    let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
+    let result = sut.get(&cpf.to_string()).await;
+    
+    assert!(match result {
+        Ok(u) => u.name == String::from("name"),
+        Err(e) => e.get_kind() == Internal
     });
 }
