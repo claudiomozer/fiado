@@ -33,7 +33,14 @@ impl PostgresRepository {
 
     fn handle_update_result(res: PgQueryResult) -> Result<(), error::Error> {
         if res.rows_affected() == 0 {
-            return Err(error::Error::new_not_found(USER_ALREADY_EXISTS, "user"));
+            return Err(error::Error::new_not_found(USER_NOT_FOUND, "user"));
+        }
+        Ok(()) 
+    }
+
+    fn handle_delete_result(res: PgQueryResult) -> Result<(), error::Error> {
+        if res.rows_affected() == 0 {
+            return Err(error::Error::new_not_found(USER_NOT_FOUND, "user"));
         }
         Ok(()) 
     }
@@ -162,5 +169,23 @@ impl Repository for PostgresRepository {
             Ok(u) => return Ok(u),
             Err(e) => return Err(Error::new_internal(e.to_string().as_str())),
         };
+    }
+
+    async fn delete_by_cpf(&self, cpf: &str) -> Result<(), Error> {
+        let query = r#"
+            DELETE FROM "user"
+            WHERE document = $1 
+        "#;
+        let result = sqlx::query(query)
+            .bind(cpf).execute(&self.pool).await;
+
+        if let Err(e) = result {
+            return Err(Error::new_internal(e.to_string().as_str()));
+        } 
+
+        match result {
+            Err(e) => Err(Error::new_internal(e.to_string().as_str())),
+            Ok(r) => Self::handle_delete_result(r)
+        }
     }
 }

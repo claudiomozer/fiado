@@ -27,3 +27,10 @@ pub async fn get_user_by_document(State(state): State<Arc<Container>>, Path(docu
         Err(err) => Err(AppError::from_domain(err))
     }
 }
+
+pub async fn delete_user_by_document(State(state): State<Arc<Container>>, Path(document): Path<String>)-> Result<(), AppError> {
+    match state.user_use_case.delete(document.as_str()).await {
+        Ok(()) => Ok(()),
+        Err(err) => Err(AppError::from_domain(err))
+    }
+}

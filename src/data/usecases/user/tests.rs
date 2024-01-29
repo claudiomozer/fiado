@@ -526,3 +526,77 @@ async fn it_should_return_an_user_on_success() {
         Err(e) => e.get_kind() == Internal
     });
 }
+
+#[tokio::test]
+async fn it_should_delete_return_an_error_if_invalid_document_is_given() {
+    use crate::data::usecases::user::UseCase; 
+    use crate::domain::usecases::user::INVALID_DOCUMENT_ERROR;
+    use crate::domain::usecases::user::UserUseCase;
+    use crate::data::usecases::user::protocols::{hash::MockHash, repository::MockRepository};
+    use crate::data::protocols::uuid::MockUuid;
+
+    let hash_mock = MockHash::new();
+    let uuid_mock = MockUuid::new();
+    let repository_mock = MockRepository::new();
+
+    let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
+
+    let mut result = sut.delete("4064").await;
+    assert!(match result {
+        Ok(_) => false,
+        Err(e) => e.get_code() == INVALID_DOCUMENT_ERROR
+    });
+
+    result = sut.delete("40735626064").await;
+    assert!(match result {
+        Ok(_) => false,
+        Err(e) => e.get_code() == INVALID_DOCUMENT_ERROR
+    });
+}
+
+
+#[tokio::test]
+async fn it_should_delete_return_an_error_when_repository_fails() {
+    use crate::data::usecases::user::UseCase; 
+    use crate::domain::usecases::user::UserUseCase;
+    use crate::data::usecases::user::protocols::{hash::MockHash, repository::MockRepository};
+    use crate::data::protocols::uuid::MockUuid;
+    use crate::domain::error::Error;
+    use mockall::predicate::eq;
+
+    let cpf = "95935806037";
+    let hash_mock = MockHash::new();
+    let uuid_mock = MockUuid::new();
+    let mut repository_mock = MockRepository::new();
+    repository_mock.expect_delete_by_cpf().with(eq(cpf)).return_const(Err(Error::new_internal("err")));
+
+    let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
+
+    let result = sut.delete(cpf).await;
+    assert!(match result {
+        Ok(_) => false,
+        Err(e) => e.get_message().contains("err")
+    });
+}
+
+#[tokio::test]
+async fn it_should_delete_return_no_errors_on_success() {
+    use crate::data::usecases::user::UseCase; 
+    use crate::domain::usecases::user::UserUseCase;
+    use crate::data::usecases::user::protocols::{hash::MockHash, repository::MockRepository};
+    use crate::data::protocols::uuid::MockUuid;
+
+    let cpf = "95935806037";
+    let hash_mock = MockHash::new();
+    let uuid_mock = MockUuid::new();
+    let mut repository_mock = MockRepository::new();
+    repository_mock.expect_delete_by_cpf().return_const(Ok(()));
+
+    let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
+
+    let result = sut.delete(cpf).await;
+    assert!(match result {
+        Ok(()) => true,
+        Err(_) => false
+    });
+}

@@ -82,6 +82,19 @@ impl UserUseCase for UseCase {
             Err(e) => Err(e)
         }
     }
+
+    async fn delete(&self, document: &str) -> Result<(), Error> {
+        let cpf = match CPF::from_string(String::from(document)) {
+            Ok(c) => c,
+            Err(_) => return Err(Error::new_business(user::INVALID_DOCUMENT_ERROR))
+        };
+
+        if !cpf.is_valid() {
+            return Err(Error::new_business(user::INVALID_DOCUMENT_ERROR))
+        }
+
+        self.repository.delete_by_cpf(document).await
+    }
 }
 
 mod tests;

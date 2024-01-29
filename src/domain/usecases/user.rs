@@ -17,6 +17,7 @@ pub trait UserUseCase {
     async fn create(&self, dto: UserCreateRequestDTO) -> Result<(), Error>;
     async fn update(&self, dto: UserUpdateRequestDTO) -> Result<(), Error>;
     async fn get(&self, document: &str) -> Result<PublicUserResponseDTO, Error>;
+    async fn delete(&self, document: &str) -> Result<(), Error>;
 }
     
 #[derive(Deserialize, Clone)]
