@@ -1,5 +1,7 @@
 use crate::domain::usecases::user::UserUseCase;
-use crate::data::usecases::user::UseCase;
+use crate::domain::usecases::admin::AdminUseCase;
+use crate::data::usecases::user;
+use crate::data::usecases::admin;
 use crate::infrastructure::{
     user::PostgresRepository,
     hash::Hasher,
@@ -11,6 +13,7 @@ use super::env;
 
 pub struct Container{
     pg_pool: Pool<Postgres>,
+    pub admin_use_case: Box<dyn AdminUseCase + Send + Sync + 'static>,
     pub user_use_case: Box<dyn UserUseCase + Send + Sync + 'static>
 }
 
@@ -24,11 +27,13 @@ impl Container {
         let hash_provider = Box::new(Hasher::new(String::from("12345678"), 5));
         let uuid_generator = Box::new(Generator::new());
 
-        let user_use_case = Box::new(UseCase::new(user_repository, uuid_generator, hash_provider));
+        let user_use_case = Box::new(user::UseCase::new(user_repository, uuid_generator, hash_provider));
+        let admin_use_case = Box::new(admin::UseCase::new(vars.admin_jwt_secret, vars.admin_role_name, vars.admin_token_duration));
 
         Container{
-            user_use_case: user_use_case,
-            pg_pool: pg_pool
+            user_use_case,
+            admin_use_case, 
+            pg_pool
         }    
     }
 
