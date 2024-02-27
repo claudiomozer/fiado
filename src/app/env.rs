@@ -9,6 +9,8 @@ pub struct Vars {
     pub admin_jwt_secret: String,
     pub admin_role_name: String,
     pub admin_token_duration: u64,
+    pub otlp_endpoint: String,
+    pub service_name: String,
 }
 
 impl Vars {
@@ -56,6 +58,17 @@ impl Vars {
             Err(_) => 1 
         };
 
+        let service_name: String = match env::var("SERVICE_NAME") {
+            Ok(v) => v,
+            Err(_) => String::from("fiadors")
+        };
+
+        let otlp_endpoint: String = match env::var("OTLP_ENDPOINT") {
+            Ok(v) => v,
+            Err(_) => String::from("http://localhost:4317")
+        };
+
+
         Vars {
             db_name,
             db_user,
@@ -64,7 +77,9 @@ impl Vars {
             db_port,
             admin_jwt_secret,
             admin_role_name,
-            admin_token_duration
+            admin_token_duration,
+            service_name,
+            otlp_endpoint
         }
     }
 }

@@ -9,3 +9,5 @@ async fn main() {
     let listener = TcpListener::bind("0.0.0.0:8888").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
+// TODO: move spans to handlers
+// TODO: close tracer at container drop

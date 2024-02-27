@@ -5,14 +5,18 @@ use crate::data::usecases::admin;
 use crate::infrastructure::{
     user::PostgresRepository,
     hash::Hasher,
-    uuid::Generator
+    uuid::Generator,
+    tracer
 };
 use sqlx::{Pool, Postgres};
+use opentelemetry_sdk::trace::Tracer;
+use opentelemetry::global::shutdown_tracer_provider;
 
 use super::env;
 
 pub struct Container{
     pg_pool: Pool<Postgres>,
+    pub tracer: Tracer,
     pub admin_use_case: Box<dyn AdminUseCase + Send + Sync + 'static>,
     pub user_use_case: Box<dyn UserUseCase + Send + Sync + 'static>
 }
@@ -30,7 +34,10 @@ impl Container {
         let user_use_case = Box::new(user::UseCase::new(user_repository, uuid_generator, hash_provider));
         let admin_use_case = Box::new(admin::UseCase::new(vars.admin_jwt_secret, vars.admin_role_name, vars.admin_token_duration));
 
+        let tracer = tracer::init_tracer(&vars.otlp_endpoint,&vars.service_name).unwrap();
+
         Container{
+            tracer,
             user_use_case,
             admin_use_case, 
             pg_pool
@@ -38,6 +45,7 @@ impl Container {
     }
 
     pub async fn destroy(&mut self) {
+        shutdown_tracer_provider(); 
         self.pg_pool.close().await;
     }
 }

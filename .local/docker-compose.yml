@@ -15,6 +15,17 @@ services:
       POSTGRES_DB: ${DB_NAME} 
     networks:
       - fiado
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    restart: always
+    ports:
+      - 4317:4317
+      - 4318:4318
+      - 16686:16686
+    environment:
+      COLLECTOR_OTLP_ENABLED: true
+    
 
 volumes:
   pgdata:
