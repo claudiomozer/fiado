@@ -1,7 +1,7 @@
 use axum::{Json, extract::{State, Path}};
-use opentelemetry::trace::{Tracer, Span};
+use opentelemetry::trace::{Tracer, Span, Status};
 use crate::app::container::Container;
-use std::sync::Arc;
+use std::{sync::Arc, borrow::Cow};
 
 use crate::{
     domain::usecases::user::{UserCreateRequestDTO, UserUpdateRequestDTO, PublicUserResponseDTO},
@@ -14,6 +14,14 @@ pub async fn create_user(State(state): State<Arc<Container>>, Json(payload): Jso
         Ok(_) => Ok(()),
         Err(err) => Err(AppError::from_domain(err))
     };
+    
+    if let Err(e) = &result {
+        span.record_error(e);
+        span.set_status(Status::Error { description: Cow::from(e.get_message()) })
+    } else {
+        span.set_status(Status::Ok);
+    }
+
     span.end();
     return result;
 }
@@ -24,6 +32,14 @@ pub async fn update_user(State(state): State<Arc<Container>>, Json(payload): Jso
         Ok(_) => Ok(()),
         Err(err) => Err(AppError::from_domain(err))
     };
+
+    if let Err(e) = &result {
+        span.record_error(e);
+        span.set_status(Status::Error { description: Cow::from(e.get_message()) })
+    } else {
+        span.set_status(Status::Ok);
+    }
+
     span.end();
     return result;
 }
@@ -34,6 +50,14 @@ pub async fn get_user_by_document(State(state): State<Arc<Container>>, Path(docu
         Ok(u) => Ok(Json(u)),
         Err(err) => Err(AppError::from_domain(err))
     };
+
+    if let Err(e) = &result {
+        span.record_error(e);
+        span.set_status(Status::Error { description: Cow::from(e.get_message()) })
+    } else {
+        span.set_status(Status::Ok);
+    }
+
     span.end();
     return result;
 }
@@ -44,6 +68,14 @@ pub async fn delete_user_by_document(State(state): State<Arc<Container>>, Path(d
         Ok(()) => Ok(()),
         Err(err) => Err(AppError::from_domain(err))
     };
+
+    if let Err(e) = &result {
+        span.record_error(e);
+        span.set_status(Status::Error { description: Cow::from(e.get_message()) })
+    } else {
+        span.set_status(Status::Ok);
+    }
+
     span.end();
     return result;
 }
