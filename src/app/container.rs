@@ -45,7 +45,7 @@ impl Container {
     }
 
     pub async fn destroy(&mut self) {
-        shutdown_tracer_provider(); 
+        shutdown_tracer_provider();
         self.pg_pool.close().await;
     }
 }
