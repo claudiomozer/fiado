@@ -8,8 +8,14 @@ impl Generator {
     }
 }
 
+impl Default for Generator {
+    fn default() -> Self {
+        Generator::new()
+    }
+}
+
 impl Uuid for Generator {
     fn generate(&self) -> String {
-        return uuid::Uuid::new_v4().to_string();
+        uuid::Uuid::new_v4().to_string()
     }
 }

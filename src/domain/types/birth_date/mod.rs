@@ -6,7 +6,7 @@ pub struct BirthDate(NaiveDate);
 
 impl BirthDate {
     pub fn from_naive(date: NaiveDate) -> BirthDate {
-        return BirthDate(date)
+        BirthDate(date)
     }
 
     pub fn is_under_age(&self) -> bool{ 

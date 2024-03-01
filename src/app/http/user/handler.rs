@@ -23,7 +23,7 @@ pub async fn create_user(State(state): State<Arc<Container>>, Json(payload): Jso
     }
 
     span.end();
-    return result;
+    result
 }
 
 pub async fn update_user(State(state): State<Arc<Container>>, Json(payload): Json<UserUpdateRequestDTO>)-> Result<(), AppError> {
@@ -41,7 +41,7 @@ pub async fn update_user(State(state): State<Arc<Container>>, Json(payload): Jso
     }
 
     span.end();
-    return result;
+    result
 }
 
 pub async fn get_user_by_document(State(state): State<Arc<Container>>, Path(document): Path<String>)-> Result<Json<PublicUserResponseDTO>, AppError> {
@@ -59,7 +59,7 @@ pub async fn get_user_by_document(State(state): State<Arc<Container>>, Path(docu
     }
 
     span.end();
-    return result;
+    result
 }
 
 pub async fn delete_user_by_document(State(state): State<Arc<Container>>, Path(document): Path<String>)-> Result<(), AppError> {
@@ -77,5 +77,5 @@ pub async fn delete_user_by_document(State(state): State<Arc<Container>>, Path(d
     }
 
     span.end();
-    return result;
+    result
 }

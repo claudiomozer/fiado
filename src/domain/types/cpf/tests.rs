@@ -37,28 +37,20 @@ fn it_should_check_if_cpfs_are_invalids() {
 fn it_should_return_error_when_string_given_is_shorter_then_expected() {
     use super::CPF;
 
-    assert!(match CPF::from_string(String::from("123456")) {
-        Err(()) => true,
-        Ok(_) => false
-    })
+    assert!(CPF::from_string(String::from("123456")).is_err())
 }
 
 #[test]
 fn it_should_return_error_when_string_given_is_bigger_then_expected() {
     use super::CPF;
 
-    assert!(match CPF::from_string(String::from("123456789123")) {
-        Err(()) => true,
-        Ok(_) => false
-    })
+    assert!(CPF::from_string(String::from("123456789123")).is_err())
 }
 
 #[test]
 fn it_should_return_error_when_string_has_non_numeric_characters() {
     use super::CPF;
 
-    assert!(match CPF::from_string(String::from("7593f47702 3")) {
-        Err(()) => true,
-        Ok(_) => false
-    })
+
+    assert!(CPF::from_string(String::from("7593f47702 3")).is_err());
 }

@@ -15,7 +15,7 @@ pub enum Kind {
 
 impl Error {
     pub fn get_code(&self) -> u8 {
-        self.code.clone()
+        self.code
     }
 
     pub fn get_message(&self) -> String {
@@ -35,7 +35,11 @@ impl Error {
     }
 
     pub fn new_business(code: u8) -> Error {
-        Error { kind: Kind::Business, code: code, message: String::from("invalid request") }
+        Error { kind: Kind::Business, code, message: String::from("invalid request") }
+    }
+
+    pub fn new_business_with_message(code: u8, message: &str) -> Error {
+        Error { kind: Kind::Business, code, message: String::from(message)  }
     }
 
     pub fn new_not_found(code: u8, entity: &str) -> Error {
@@ -43,6 +47,12 @@ impl Error {
     }
     
     pub fn new_already_exists(code: u8, entity: &str) -> Error {
-        Error { kind: Kind::Business, code: code, message: format!("{} already exists", entity) }
+        Error { kind: Kind::Business, code, message: format!("{} already exists", entity) }
+    }
+}
+
+impl Default for Error {
+    fn default() -> Self {
+       Error::new() 
     }
 }

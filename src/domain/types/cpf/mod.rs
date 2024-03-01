@@ -1,5 +1,5 @@
 use serde::{Serialize, Serializer};
-use std::fmt::Write;
+use std::fmt::{self, Write, Display};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct CPF ([u32; 11]);
@@ -45,32 +45,28 @@ impl CPF {
         false
     }
 
-    pub fn from_string(cpf: String) -> Result<CPF, ()> {
+    pub fn from_string(cpf: String) -> Result<CPF, String> {
         let mut document_numbers: [u32; 11] = [0;11];
         let mut count: usize = 0;
 
         if cpf.len() > 11 {
-            return Err(());
+            return Err(String::from("CPF len bigger than 11 chars"));
         }
 
         for ch in cpf.chars() {
             if let Some(number) = ch.to_digit(10) {
                 document_numbers[count] = number;
             } else {
-                return Err(());
+                return Err(String::from("CPF with invalid digits"));
             }
             count += 1;
         }
         
         if count < 11 {
-            return Err(());
+            return Err(String::from("CPF shorter than 11 chars"));
         }
 
         Ok(CPF(document_numbers))
-    }
-
-    pub fn to_string(&self) ->  String {
-        self.0.map(|digit| digit.to_string()).concat()
     }
 }
 
@@ -87,7 +83,11 @@ impl Serialize for CPF {
     }
 }
 
-
+impl Display for CPF {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0.map(|digit| digit.to_string()).concat())
+    }
+}
 
 
 mod tests;

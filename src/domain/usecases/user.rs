@@ -33,7 +33,7 @@ impl UserCreateRequestDTO {
         if let Ok(document) = CPF::from_string(self.document) {
             return Ok(User::new(self.name, document, BirthDate::from_naive(self.birth_date)));
         }
-        return Err(Error::new_business(INVALID_DOCUMENT_ERROR));
+        Err(Error::new_business(INVALID_DOCUMENT_ERROR))
     }
 }
 
@@ -51,7 +51,7 @@ impl UserUpdateRequestDTO {
             user.set_uuid(self.id);
             return Ok(user);
         }
-        return Err(Error::new_business(INVALID_DOCUMENT_ERROR));
+        Err(Error::new_business(INVALID_DOCUMENT_ERROR))
     }
 }
 
@@ -67,7 +67,7 @@ pub struct PublicUserResponseDTO {
 }
 impl PublicUserResponseDTO {
     pub fn from_user(user: User) -> Self {
-        return PublicUserResponseDTO { 
+        PublicUserResponseDTO { 
             id: String::from(user.get_id()),
             name: String::from(user.get_name()),
             document: *user.get_document(), 

@@ -58,7 +58,7 @@ async fn it_should_call_uuid_generator() {
     uuid_mock.expect_generate().return_const("uuid");
 
     let sut = UseCase::new(Box::new(repository_mock), Box::new(uuid_mock), Box::new(hash_mock));
-    _ = sut.create(dto);
+    let _ = sut.create(dto).await;
 }
 
 #[tokio::test]
@@ -522,7 +522,7 @@ async fn it_should_return_an_user_on_success() {
     let result = sut.get(&cpf.to_string()).await;
     
     assert!(match result {
-        Ok(u) => u.name == String::from("name"),
+        Ok(u) => u.name == *"name",
         Err(e) => e.get_kind() == Internal
     });
 }

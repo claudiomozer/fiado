@@ -31,7 +31,7 @@ impl Hasher {
             panic!("Pepper must have at least 8 characters")
         }
 
-        if cost < 4 || cost > 31 {
+        if !(4..=31).contains(&cost) {
             panic!("Cost needs to be between 4 and 31")
         }
 

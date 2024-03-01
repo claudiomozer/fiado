@@ -29,7 +29,7 @@ pub async fn admin_layer(
 fn get_token_from_header(request: &Request) -> Result<String, AppError> {
     if let Some(bearer) = request.headers().get("Authorization") {
         let token_op = match bearer.to_str() {
-            Ok(t) => t.split(" ").last(),
+            Ok(t) => t.split(' ').last(),
             Err(_) => return Err(AppError::from_domain(Error::new_business(MISSING_AUTH_TOKEN)))
         };
 

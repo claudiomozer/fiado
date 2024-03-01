@@ -11,7 +11,7 @@ async fn it_should_create_token_return_error_when_jwt_fails() {
     let result = sut.generate_token().await;
 
     assert!(match result {
-       Ok(t) => t.len() > 0,
+       Ok(t) => !t.is_empty(),
        Err(_) => false, 
     });
 }
@@ -34,10 +34,8 @@ async fn it_should_not_return_error_when_validating_a_valid_token_string() {
     });
 
     let validation_result = sut.validate_token(token).await;
-    assert!(match validation_result {
-        Ok(()) => true,
-        Err(_) => false
-    });
+
+    assert!(matches!(validation_result, Ok(())));
 }
 
 #[tokio::test]
@@ -59,12 +57,7 @@ async fn it_should_return_error_when_token_is_expired() {
         }
     });
 
-    assert!(
-        match err.get_code() {
-            EXPIRED_TOKEN_ERROR => true,
-            _ => false
-        }
-    )
+    assert!(matches!(err.get_code(), EXPIRED_TOKEN_ERROR));
 }
 
 
@@ -94,12 +87,7 @@ async fn it_should_return_error_when_invalid_token_subject_is_provided() {
         }
     });
 
-    assert!(
-        match err.get_code() {
-            INVALID_TOKEN_ERROR => true,
-            _ => false
-        }
-    )
+    assert!(matches!(err.get_code(), INVALID_TOKEN_ERROR));
 }
 
 #[tokio::test]
@@ -130,11 +118,6 @@ async fn it_should_return_error_when_signature_is_invalid() {
         }
     });
 
-    assert!(
-        match err.get_code() {
-            INVALID_TOKEN_ERROR => true,
-            _ => false
-        }
-    )
+    assert!(matches!(err.get_code(), INVALID_TOKEN_ERROR))
 }
 

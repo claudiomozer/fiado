@@ -57,7 +57,7 @@ impl PostgresRepository {
 
         let cpf = match CPF::from_string(String::from(document)) {
             Ok(c) => c,
-            Err(()) => return Err(sqlx::Error::TypeNotFound { type_name: String::from("CPF") })
+            Err(_) => return Err(sqlx::Error::TypeNotFound { type_name: String::from("CPF") })
         };
 
         let mut user = User::new(name, cpf, BirthDate::from_naive(birth_date));
@@ -65,7 +65,7 @@ impl PostgresRepository {
         user.set_status(UserStatus::from_string(status));
         user.set_created_at(db_created_at.and_utc());
         user.set_updated_at(db_updated_at.and_utc());
-        return Ok(user);
+        Ok(user)
     }
 
 }
