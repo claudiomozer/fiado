@@ -15,7 +15,7 @@ use opentelemetry::global::shutdown_tracer_provider;
 use super::env;
 
 pub struct Container{
-    pg_pool: Pool<Postgres>,
+    pub pg_pool: Pool<Postgres>,
     pub tracer: Tracer,
     pub admin_use_case: Box<dyn AdminUseCase + Send + Sync + 'static>,
     pub user_use_case: Box<dyn UserUseCase + Send + Sync + 'static>
