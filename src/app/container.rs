@@ -2,6 +2,7 @@ use crate::domain::usecases::user::UserUseCase;
 use crate::domain::usecases::admin::AdminUseCase;
 use crate::data::usecases::user;
 use crate::data::usecases::admin;
+use crate::infrastructure::logger;
 use crate::infrastructure::{
     user::PostgresRepository,
     hash::Hasher,
@@ -35,6 +36,8 @@ impl Container {
         let admin_use_case = Box::new(admin::UseCase::new(vars.admin_jwt_secret, vars.admin_role_name, vars.admin_token_duration));
 
         let tracer = tracer::init_tracer(&vars.otlp_endpoint,&vars.service_name).unwrap();
+
+        logger::init();
 
         Container{
             tracer,

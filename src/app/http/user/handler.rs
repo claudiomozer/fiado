@@ -2,6 +2,7 @@ use axum::{Json, extract::{State, Path}};
 use opentelemetry::trace::{Tracer, Span, Status};
 use crate::app::container::Container;
 use std::{sync::Arc, borrow::Cow};
+use log::error;
 
 use crate::{
     domain::usecases::user::{UserCreateRequestDTO, UserUpdateRequestDTO, PublicUserResponseDTO},
@@ -17,7 +18,8 @@ pub async fn create_user(State(state): State<Arc<Container>>, Json(payload): Jso
     
     if let Err(e) = &result {
         span.record_error(e);
-        span.set_status(Status::Error { description: Cow::from(e.get_message()) })
+        span.set_status(Status::Error { description: Cow::from(e.get_message()) });
+        error!(target: "create_user_error", "error creating user {e}");
     } else {
         span.set_status(Status::Ok);
     }
@@ -35,7 +37,8 @@ pub async fn update_user(State(state): State<Arc<Container>>, Json(payload): Jso
 
     if let Err(e) = &result {
         span.record_error(e);
-        span.set_status(Status::Error { description: Cow::from(e.get_message()) })
+        span.set_status(Status::Error { description: Cow::from(e.get_message()) });
+        error!(target: "update_user_error", "error updating user {e}");
     } else {
         span.set_status(Status::Ok);
     }
@@ -53,7 +56,8 @@ pub async fn get_user_by_document(State(state): State<Arc<Container>>, Path(docu
 
     if let Err(e) = &result {
         span.record_error(e);
-        span.set_status(Status::Error { description: Cow::from(e.get_message()) })
+        span.set_status(Status::Error { description: Cow::from(e.get_message()) });
+        error!(target: "get_user_by_document_error", "error getting user {e}");
     } else {
         span.set_status(Status::Ok);
     }
@@ -64,14 +68,15 @@ pub async fn get_user_by_document(State(state): State<Arc<Container>>, Path(docu
 
 pub async fn delete_user_by_document(State(state): State<Arc<Container>>, Path(document): Path<String>)-> Result<(), AppError> {
     let mut span = state.tracer.start("delete.user");
-    let result =     match state.user_use_case.delete(document.as_str()).await {
+    let result = match state.user_use_case.delete(document.as_str()).await {
         Ok(()) => Ok(()),
         Err(err) => Err(AppError::from_domain(err))
     };
 
     if let Err(e) = &result {
         span.record_error(e);
-        span.set_status(Status::Error { description: Cow::from(e.get_message()) })
+        span.set_status(Status::Error { description: Cow::from(e.get_message()) });
+        error!(target: "delete_error", "error deleting user {e}");
     } else {
         span.set_status(Status::Ok);
     }
